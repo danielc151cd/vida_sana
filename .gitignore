@@ -1,0 +1,27 @@
+# Sistema
+.DS_Store
+Thumbs.db
+*.log
+
+# IDEs
+.vscode/
+.idea/
+
+# Dependencias/composer (si lo usas)
+vendor/
+
+# Cache y sesiones
+cache/
+tmp/
+*.cache
+
+# Entornos
+.env
+.env.*
+
+# Copias locales
+*.zip
+*.rar
+
+# SQL grandes (opcional)
+#db_backups/

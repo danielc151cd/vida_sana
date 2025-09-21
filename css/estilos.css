@@ -1,0 +1,66 @@
+/* Fuente elegante y moderna */
+body {
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #fff;
+    color: #111;
+}
+
+/* Encabezado con contraste */
+header {
+    background-color: #000;
+    color: #fff;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Título principal */
+header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* Navegación */
+nav a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 10px;
+    font-weight: 500;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+/* Efecto elegante en los enlaces */
+nav a::after {
+    content: "";
+    display: block;
+    width: 0%;
+    height: 2px;
+    background: #fff;
+    transition: width 0.3s;
+    margin: auto;
+}
+
+nav a:hover {
+    color: #ccc;
+}
+
+nav a:hover::after {
+    width: 100%;
+}
+
+/* Separador */
+hr {
+    border: none;
+    border-top: 1px solid #000;
+    margin: 0;
+}
+
+/* Opcional: efecto sutil al pasar el mouse sobre el header */
+header:hover {
+    background-color: #111;
+}
