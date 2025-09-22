@@ -22,9 +22,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $cantidad_maxima = intval($_POST['cantidad_maxima']);
         $ubicacion = trim($_POST['ubicacion']);
 
-        $sql = "INSERT INTO inventario (id_sucursal, id_producto, cantidad_disponible, cantidad_minima, cantidad_maxima, ubicacion_fisica)
-                VALUES ($1, $2, $3, $4, $5, $6)";
-        pg_query_params($conn, $sql, array($id_sucursal, $id_producto, $cantidad_disponible, $cantidad_minima, $cantidad_maxima, $ubicacion));
+        // 1. Crear lote automáticamente
+        $sql_lote = "INSERT INTO lotes_productos 
+            (numero_lote, id_producto, fecha_vencimiento, fecha_fabricacion, 
+             cantidad_inicial, cantidad_actual, precio_compra, estado_lote)
+            VALUES ($1, $2, $3, $4, $5, $5, $6, 'DISPONIBLE')
+            RETURNING id_lote";
+
+        $res_lote = pg_query_params($conn, $sql_lote, array(
+            "LOT-" . uniqid(),
+            $id_producto,
+            date("Y-m-d", strtotime("+2 years")), // vencimiento 2 años
+            date("Y-m-d"),                        // fabricación hoy
+            $cantidad_disponible,
+            10.00                                // precio ficticio
+        ));
+
+        if ($res_lote && pg_num_rows($res_lote) > 0) {
+            $id_lote = pg_fetch_result($res_lote, 0, 0);
+
+            // 2. Insertar en inventario
+            $sql = "INSERT INTO inventario 
+                (id_sucursal, id_producto, id_lote, cantidad_disponible, cantidad_minima, cantidad_maxima, ubicacion_fisica)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)";
+            pg_query_params($conn, $sql, array(
+                $id_sucursal, $id_producto, $id_lote,
+                $cantidad_disponible, $cantidad_minima, $cantidad_maxima, $ubicacion
+            ));
+        }
     }
 
     if (isset($_POST['editar'])) {
@@ -43,7 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['eliminar'])) {
         $id_inventario = intval($_POST['id_inventario']);
         $sql = "DELETE FROM inventario WHERE id_inventario=$1";
-        @pg_query_params($conn, $sql, array($id_inventario)); // @ para evitar error si hay FK
+        @pg_query_params($conn, $sql, array($id_inventario));
     }
 }
 
@@ -52,7 +77,8 @@ $sucursales = pg_query($conn, "SELECT id_sucursal, nombre_sucursal FROM sucursal
 $productos = pg_query($conn, "SELECT id_producto, nombre_producto FROM productos ORDER BY nombre_producto");
 
 // Consultar inventario con filtros
-$sql = "SELECT i.id_inventario, s.nombre_sucursal, p.nombre_producto, i.cantidad_disponible, i.cantidad_minima, i.cantidad_maxima, i.ubicacion_fisica
+$sql = "SELECT i.id_inventario, s.nombre_sucursal, p.nombre_producto, 
+               i.cantidad_disponible, i.cantidad_minima, i.cantidad_maxima, i.ubicacion_fisica
         FROM inventario i
         JOIN sucursales s ON i.id_sucursal = s.id_sucursal
         JOIN productos p ON i.id_producto = p.id_producto
@@ -129,7 +155,7 @@ include("includes/header.php");
                     <select name="id_sucursal" id="id_sucursal" required>
                         <option value="">Seleccionar sucursal...</option>
                         <?php
-                        pg_result_seek($sucursales, 0); // Reiniciar el cursor
+                        pg_result_seek($sucursales, 0);
                         while ($s = pg_fetch_assoc($sucursales)) : ?>
                             <option value="<?php echo $s['id_sucursal']; ?>"><?php echo htmlspecialchars($s['nombre_sucursal']); ?></option>
                         <?php endwhile; ?>
@@ -141,7 +167,7 @@ include("includes/header.php");
                     <select name="id_producto" id="id_producto" required>
                         <option value="">Seleccionar producto...</option>
                         <?php
-                        pg_result_seek($productos, 0); // Reiniciar el cursor
+                        pg_result_seek($productos, 0);
                         while ($p = pg_fetch_assoc($productos)) : ?>
                             <option value="<?php echo $p['id_producto']; ?>"><?php echo htmlspecialchars($p['nombre_producto']); ?></option>
                         <?php endwhile; ?>
