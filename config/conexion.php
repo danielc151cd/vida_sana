@@ -1,12 +1,11 @@
 <?php
 // config/conexion.php
-// ✅ Conexión PostgreSQL en Railway usando variables de entorno
 
-$host = getenv("PGHOST") ?: "postgres.railway.internal";
-$port = getenv("PGPORT") ?: "5432";
-$dbname = getenv("PGDATABASE") ?: "railway";
-$user = getenv("PGUSER") ?: "postgres";
-$password = getenv("PGPASSWORD") ?: "TshCxgYlhUPevmTNrlUkFTHsXuDMeoWV"; // ⚠️ cámbialo en Railway Variables
+$host = "turntable.proxy.rlwy.net";
+$port = "13368";
+$dbname = "railway";
+$user = "postgres";
+$password = "TshCxgYlhUPevmTNrlUkFTHsXuDMeoWV";
 
 $conn = pg_connect("host=$host port=$port dbname=$dbname user=$user password=$password");
 
