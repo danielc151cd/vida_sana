@@ -1,14 +1,16 @@
 <?php
 // config/conexion.php
-$host = "localhost";
-$port = "5432";
-$dbname = "vida_sana_db";
-$user = "postgres";   // tu usuario
-$password = "root"; // tu clave
+// ✅ Conexión PostgreSQL en Railway usando variables de entorno
+
+$host = getenv("PGHOST") ?: "postgres.railway.internal";
+$port = getenv("PGPORT") ?: "5432";
+$dbname = getenv("PGDATABASE") ?: "railway";
+$user = getenv("PGUSER") ?: "postgres";
+$password = getenv("PGPASSWORD") ?: "TshCxgYlhUPevmTNrlUkFTHsXuDMeoWV"; // ⚠️ cámbialo en Railway Variables
 
 $conn = pg_connect("host=$host port=$port dbname=$dbname user=$user password=$password");
 
-if(!$conn){
+if (!$conn) {
     die("❌ Error al conectar a la base de datos: " . pg_last_error());
 }
 ?>
